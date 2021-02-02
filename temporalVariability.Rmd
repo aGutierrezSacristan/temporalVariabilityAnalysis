@@ -32,6 +32,7 @@ theme_set(theme_bw() +
 Read the functions and data needed for the analysis. 
 ```{r suppData, message=FALSE}
 source("R/readInputFiles.R")
+source("R/summaryTableOne.R")
 autoimmune <- read.delim('public-data/autoimmuneICD10codes.txt')
 mentalDisorder <- read.delim('public-data/icd10_categories_mentalDisorders.txt')
 ```
@@ -66,9 +67,6 @@ Suidice related codes added from: https://www.cdc.gov/nchs/data/nhsr/nhsr108.pdf
 DT::datatable( mentalDisorder, rownames = FALSE )
 ```
 
-
-## Data pre-processing
-
 ```{r  message=FALSE, warning=FALSE}
 observations <- obs_raw %>%
           filter( concept_type == 'DIAG-ICD10', days_since_admission >= 0, concept_code %in% mentalDisorder$ICD10) %>%
@@ -100,7 +98,7 @@ demographics <- unique( demo_raw %>%
 demographics$subset <- ifelse( demographics$patient_num %in% final$patient_num, "Subset Yes", "Subset No")
   
 ## Create the summary table 1
-table1(~ sex + age_group  | subset , data=demographics )
+tbl1 <- summaryTableOne( df = demographics, obfuscation = obfuscation, stratifyBy = "Mental Disorders")
 ```
 
 ### Format the data for the temporal variability analysis
@@ -177,7 +175,6 @@ plotDataTemporalMap(
 DT::datatable( autoimmune, rownames = FALSE )
 ```
 
-## Data pre-processing
 
 ```{r  message=FALSE, warning=FALSE}
 obfuscation = FALSE
@@ -211,7 +208,7 @@ demographics <- unique( demo_raw %>%
 demographics$subset <- ifelse( demographics$patient_num %in% final$patient_num, "Subset Yes", "Subset No")
   
 ## Create the summary table 1
-table1(~ sex + age_group  | subset , data=demographics )
+tbl2 <- summaryTableOne( df = demographics, obfuscation = obfuscation, stratifyBy = "Autoimmune Disorders")
 ```
 
 ## Format the data for the temporal variability analysis
@@ -279,7 +276,6 @@ plotDataTemporalMap(
 # Aggregated by PheWAS category
 PheCode mapping file downloaded from: https://phewascatalog.org/phecodes_icd10 
 
-## Data pre-processing
 
 ```{r  message=FALSE, warning=FALSE}
 observations <- obs_raw %>%
@@ -312,7 +308,7 @@ demographics <- unique( demo_raw %>%
 demographics$subset <- ifelse( demographics$patient_num %in% final$patient_num, "Subset Yes", "Subset No")
   
 ## Create the summary table 1
-table1(~ sex + age_group  | subset , data=demographics )
+tbl3 <- summaryTableOne( df = demographics, obfuscation = obfuscation, stratifyBy = "PheWAS code")
 ```
 
 ## Format the data for the temporal variability analysis
@@ -386,9 +382,6 @@ plotDataTemporalMap(
 
 # Medication
 
-
-## Data pre-processing
-
 ```{r  message=FALSE, warning=FALSE}
 observations <- obs_raw %>%
       filter( concept_type == 'MED-CLASS', days_since_admission >= 0) %>%
@@ -421,7 +414,7 @@ demographics <- unique( demo_raw %>%
 demographics$subset <- ifelse( demographics$patient_num %in% final$patient_num, "Subset Yes", "Subset No")
   
 ## Create the summary table 1
-table1(~ sex + age_group  | subset , data=demographics )
+tbl4 <- summaryTableOne( df = demographics, obfuscation = obfuscation, stratifyBy = "Medication")
 ```
 
 ## Format the data for the temporal variability analysis

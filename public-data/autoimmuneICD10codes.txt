@@ -1,0 +1,35 @@
+ICD10	ICD10.String
+D51	Vitamin B12 deficiency anaemia
+D68	Other coagulation defects
+E05	Thyrotoxicosis [hyperthyroidism]
+E06	Thyroiditis
+E10	Type 1 diabetes mellitus
+E27	Other disorders of adrenal gland
+G35	Multiple sclerosis
+G61	Inflammatory polyneuropathy
+G70	Myasthenia gravis and other myoneural disorders
+H20	Iridocyclitis
+K50	Crohn disease [regional enteritis]
+K51	Ulcerative colitis
+K74	Fibrosis and cirrhosis of liver
+K90	Intestinal malabsorption
+L10	Pemphigus
+L12	Pemphigoid
+L40	Psoriasis
+L63	Alopecia areata
+L65	Other nonscarring hair loss
+L66	Cicatricial alopecia [scarring hair loss]
+L80	Vitiligo
+L93	Lupus erythematosus
+L94	Other localized connective tissue disorders
+M05	Rheumatoid arthritis with rheumatoid factor
+M06	Other rheumatoid arthritis
+M08	Juvenile arthritis
+M30	Polyarteritis nodosa and related conditions
+M31	Other necrotizing vasculopathies
+M32	Systemic lupus erythematosus
+M33	Dermatopolymyositis
+M34	Systemic sclerosis
+M35	Other systemic involvement of connective tissue
+M45	Ankylosing spondylitis
+R76	Other abnormal immunological findings in serum

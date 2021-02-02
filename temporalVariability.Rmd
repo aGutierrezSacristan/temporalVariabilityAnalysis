@@ -1,0 +1,493 @@
+---
+title: "Temporal Variability in Pediatric population: BCH"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: show
+---
+```{r setup, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# Set output directories
+output_dir <- "htmls"
+```
+
+```{r setup, message=FALSE, warning=FALSE, results='hide'}
+# Install packages
+paket <- function(pak){
+  new_pak <- pak[!(pak %in% rownames(installed.packages()))]
+  if (length(new_pak)) 
+    install.packages(new_pak, dependencies = TRUE,repos="https://cloud.r-project.org/",lib=userLibDir)
+  sapply(pak, library, character.only = TRUE)
+}
+
+listOfPackages <- c("EHRtemporalVariability", "dplyr", "tidyr", "tidyverse", "table1", "plotly", "DT")
+paket(listOfPackages)
+```
+
+```{r}
+theme_set(theme_bw() + 
+            theme(legend.title = element_blank(),
+                  panel.grid.minor = element_blank()))
+```
+
+
+## Data read-in
+
+Read the functions and data needed for the analysis. 
+```{r bch, message=FALSE}
+source("R/readInputFiles.R")
+autoimmune <- read.delim('public-data/autoimmuneDisease.txt')
+autoimmune <- unique(autoimmune[, c("ICD10.parent.code", "Parent.Group")])
+mentalDisorder <- read.delim('public-data/icd10_categories_mentalDisorders.txt')
+```
+
+Read the input files.
+
+```{r message=FALSE, warning=FALSE}
+### Read the CSV input files
+#change to the path where your phase 2.1 data files are located
+myinputFiles <- "/4ceData/Input/"
+files <- readInputFiles( path      = myinputFiles, 
+                         separator = ",",
+                         skip      = 0, 
+                         verbose   = FALSE )
+  
+### Extract the patient summary and observation information. 
+demo_raw <- files[[1]]
+obs_raw <- files[[2]]
+clinical_raw <- files[[3]]
+
+### Determine the obfuscation threshold (FALSE if no obfuscation, the numeric value of the obfuscation threshold if any)
+obfuscation =  FALSE
+#obfuscation = 3
+```
+
+# Mental Disorders
+ICD10 codes extracted from: The ICD-10 Classification of Mental and Behavioural Disorders Clinical descriptions and diagnostic guidelines by the World Health Organization https://www.who.int/classifications/icd/en/bluebook.pdf
+
+Suidice related codes added from: https://www.cdc.gov/nchs/data/nhsr/nhsr108.pdf 
+
+```{r}
+DT::datatable( mentalDisorder, rownames = FALSE )
+```
+
+
+## Data pre-processing
+
+```{r  message=FALSE, warning=FALSE}
+observations <- obs_raw %>%
+          filter( concept_type == 'DIAG-ICD10', days_since_admission >= 0, concept_code %in% mentalDisorder$ICD10) %>%
+          mutate( pair = as.character(paste0( patient_num, "*",days_since_admission))) %>%
+          select( patient_num, pair, concept_code )
+```
+
+```{r}
+observations$concept_code <- as.character( observations$concept_code)
+  
+clinical <- clinical_raw %>%
+    mutate( pair = as.character(paste0( patient_num, "*",days_since_admission))) %>%
+    select( patient_num, pair, calendar_date, severe, deceased)
+  
+final <- merge( observations, clinical, by="pair") 
+  
+final <- final %>%
+    mutate(patient_num = patient_num.x) %>%
+    select(patient_num, concept_code, calendar_date, severe )
+```
+
+## Demographic summary
+
+```{r}
+## Select of demographic data
+demographics <- unique( demo_raw %>%
+                        select( patient_num, age_group, sex ) )
+
+demographics$subset <- ifelse( demographics$patient_num %in% final$patient_num, "Subset Yes", "Subset No")
+  
+## Create the summary table 1
+table1(~ sex + age_group  | subset , data=demographics )
+```
+
+### Format the data for the temporal variability analysis
+```{r}
+## Remove the patient identifier and remove duplicates
+final <- final[, -1 ]
+final <- final[!duplicated( final ), ]
+  
+## Put the date column as class Date
+final <- EHRtemporalVariability::formatDate(
+    input         = final,
+    dateColumn    = "calendar_date",
+    dateFormat = "%Y-%m-%d"
+)
+```
+
+### Add the description of the ICD codes for mental disorders
+```{r}
+colnames( mentalDisorder )[2] <- "description"
+      final <- merge( final, mentalDisorder, by.x = "concept_code", by.y = "ICD10")
+final$description <- as.character(final$description)
+final$descriptionShort <- substr(final$description, 1, 40)
+```
+
+
+
+## Heatmap output visualization
+
+### By week
+```{r, warning=FALSE}
+probMaps_week <- estimateDataTemporalMap(data         = final, 
+                                    dateColumnName = "calendar_date", 
+                                    period         = "week")
+
+if( obfuscation !=  FALSE ){
+    
+    for( i in 1:length(probMaps_week)){
+      probMaps_week[[i]]@countsMap[probMaps_week[[i]]@countsMap > 0 & probMaps_week[[i]]@countsMap <= obfuscation ] <- 0.5 * obfuscation
+    }
+}
+
+plotDataTemporalMap(
+    dataTemporalMap =  probMaps_week[["descriptionShort"]],
+    startValue = 1,
+    endValue = 20,
+    colorPalette    = "Magma", 
+    absolute = TRUE)
+
+```
+
+
+### By month
+```{r, warning=FALSE}
+probMaps_month <- estimateDataTemporalMap(data         = final, 
+                                    dateColumnName = "calendar_date", 
+                                    period         = "month")
+if( obfuscation !=  FALSE ){
+    for( i in 1:length(probMaps_month)){
+      probMaps_month[[i]]@countsMap[probMaps_month[[i]]@countsMap > 0 & probMaps_month[[i]]@countsMap <= obfuscation ] <- 0.5 * obfuscation
+    }
+} 
+
+plotDataTemporalMap(
+    dataTemporalMap =  probMaps_month[["descriptionShort"]],
+    startValue = 1,
+    endValue = 20,
+    colorPalette    = "Magma", 
+    absolute = FALSE)
+```
+
+# Autoimmune disorders
+
+```{r}
+DT::datatable( autoimmune, rownames = FALSE )
+```
+
+## Data pre-processing
+
+```{r  message=FALSE, warning=FALSE}
+obfuscation = FALSE
+observations <- obs_raw %>%
+        filter( concept_type == 'DIAG-ICD10', days_since_admission >= 0, concept_code %in% autoimmune$ICD10) %>%
+        mutate( pair = as.character(paste0( patient_num, "*",days_since_admission))) %>%
+        select( patient_num, pair, concept_code )
+```
+
+```{r}
+observations$concept_code <- as.character( observations$concept_code)
+  
+clinical <- clinical_raw %>%
+    mutate( pair = as.character(paste0( patient_num, "*",days_since_admission))) %>%
+    select( patient_num, pair, calendar_date, severe, deceased)
+  
+final <- merge( observations, clinical, by="pair") 
+  
+final <- final %>%
+    mutate(patient_num = patient_num.x) %>%
+    select(patient_num, concept_code, calendar_date, severe )
+```
+
+## Demographic summary
+
+```{r}
+## Select of demographic data
+demographics <- unique( demo_raw %>%
+                        select( patient_num, age_group, sex ) )
+
+demographics$subset <- ifelse( demographics$patient_num %in% final$patient_num, "Subset Yes", "Subset No")
+  
+## Create the summary table 1
+table1(~ sex + age_group  | subset , data=demographics )
+```
+
+## Format the data for the temporal variability analysis
+```{r}
+## Remove the patient identifier and remove duplicates
+final <- final[, -1 ]
+final <- final[!duplicated( final ), ]
+  
+## Put the date column as class Date
+final <- EHRtemporalVariability::formatDate(
+    input         = final,
+    dateColumn    = "calendar_date",
+    dateFormat = "%Y-%m-%d"
+)
+```
+
+### Add the description of the ICD codes for mental disorders
+```{r}
+colnames( autoimmune )[2] <- "description"
+final <- merge( final, autoimmune, by.x = "concept_code", by.y = "ICD10")
+final$description <- as.character(final$description)
+final$descriptionShort <- substr(final$description, 1, 40)
+```
+
+## Heatmap output visualization
+
+### By week
+```{r, warning=FALSE}
+probMaps_week <- estimateDataTemporalMap(data         = final, 
+                                    dateColumnName = "calendar_date", 
+                                    period         = "week")
+if( obfuscation !=  FALSE ){
+    for( i in 1:length(probMaps_week)){
+      probMaps_week[[i]]@countsMap[probMaps_week[[i]]@countsMap > 0 & probMaps_week[[i]]@countsMap <= obfuscation ] <- 0.5 * obfuscation
+    }
+}
+
+plotDataTemporalMap(
+    dataTemporalMap =  probMaps_week[["descriptionShort"]],
+    startValue = 1,
+    endValue = 20,
+    colorPalette    = "Magma", 
+    absolute = TRUE)
+```
+
+### By month
+```{r, warning=FALSE}
+probMaps_month <- estimateDataTemporalMap(data         = final, 
+                                    dateColumnName = "calendar_date", 
+                                    period         = "month")
+if( obfuscation !=  FALSE ){
+    for( i in 1:length(probMaps_month)){
+      probMaps_month[[i]]@countsMap[probMaps_month[[i]]@countsMap > 0 & probMaps_month[[i]]@countsMap <= obfuscation ] <- 0.5 * obfuscation
+    }
+}
+
+plotDataTemporalMap(
+    dataTemporalMap =  probMaps_month[["descriptionShort"]],
+    startValue = 1,
+    endValue = 20,
+    colorPalette    = "Magma", 
+    absolute = TRUE)
+```
+
+# Aggregated by PheWAS category
+PheCode mapping file downloaded from: https://phewascatalog.org/phecodes_icd10 
+
+## Data pre-processing
+
+```{r  message=FALSE, warning=FALSE}
+observations <- obs_raw %>%
+            filter( concept_type == 'DIAG-ICD10', days_since_admission >= 0) %>%
+            mutate( pair = as.character(paste0( patient_num, "*",days_since_admission))) %>%
+            select( patient_num, pair, concept_code )
+```
+
+```{r}
+observations$concept_code <- as.character( observations$concept_code)
+  
+clinical <- clinical_raw %>%
+    mutate( pair = as.character(paste0( patient_num, "*",days_since_admission))) %>%
+    select( patient_num, pair, calendar_date, severe, deceased)
+  
+final <- merge( observations, clinical, by="pair") 
+  
+final <- final %>%
+    mutate(patient_num = patient_num.x) %>%
+    select(patient_num, concept_code, calendar_date, severe )
+```
+
+## Demographic summary
+
+```{r}
+## Select of demographic data
+demographics <- unique( demo_raw %>%
+                        select( patient_num, age_group, sex ) )
+
+demographics$subset <- ifelse( demographics$patient_num %in% final$patient_num, "Subset Yes", "Subset No")
+  
+## Create the summary table 1
+table1(~ sex + age_group  | subset , data=demographics )
+```
+
+## Format the data for the temporal variability analysis
+```{r}
+## Remove the patient identifier and remove duplicates
+final <- final[, -1 ]
+final <- final[!duplicated( final ), ]
+  
+## Put the date column as class Date
+final <- EHRtemporalVariability::formatDate(
+    input         = final,
+    dateColumn    = "calendar_date",
+    dateFormat = "%Y-%m-%d"
+)
+```
+
+### Add the description of the ICD codes for mental disorders
+```{r}
+phecode <- read.csv("public_data/phecode_icd10.csv", colClasses = "character")
+
+phecode$Phenotype <- ifelse( phecode$Phenotype == "", phecode$ICD10.String, phecode$Phenotype )
+      phecode <- unique( phecode %>%
+        mutate( concept_code = ICD10, description = Phenotype ) %>%
+        select( concept_code, PheCode, description ))
+      final <- merge( final, phecode)
+
+final$description <- as.character(final$description)
+final$descriptionShort <- substr(final$description, 1, 40)
+```
+
+## Heatmap output visualization
+
+### By week
+```{r, warning=FALSE}
+probMaps_week <- estimateDataTemporalMap(data         = final, 
+                                    dateColumnName = "calendar_date", 
+                                    period         = "week")
+if( obfuscation !=  FALSE ){
+    
+    for( i in 1:length(probMaps_week)){
+      probMaps_week[[i]]@countsMap[probMaps_week[[i]]@countsMap > 0 & probMaps_week[[i]]@countsMap <= obfuscation ] <- 0.5 * obfuscation
+    }
+}
+
+plotDataTemporalMap(
+    dataTemporalMap =  probMaps_week[["descriptionShort"]],
+    startValue = 1,
+    endValue = 20,
+    colorPalette    = "Magma", 
+    absolute = TRUE)
+```
+
+### By month
+```{r, warning=FALSE}
+probMaps_month <- estimateDataTemporalMap(data         = final, 
+                                    dateColumnName = "calendar_date", 
+                                    period         = "month")
+if( obfuscation !=  FALSE ){
+    for( i in 1:length(probMaps_month)){
+      probMaps_month[[i]]@countsMap[probMaps_month[[i]]@countsMap > 0 & probMaps_month[[i]]@countsMap <= obfuscation ] <- 0.5 * obfuscation
+    }
+}
+plotDataTemporalMap(
+    dataTemporalMap =  probMaps_month[["description"]],
+    startValue = 1,
+    endValue = 20,
+    colorPalette    = "Magma", 
+    absolute = TRUE)
+```
+
+
+# Medication
+
+
+## Data pre-processing
+
+```{r  message=FALSE, warning=FALSE}
+observations <- obs_raw %>%
+      filter( concept_type == 'MED-CLASS', days_since_admission >= 0) %>%
+      mutate( pair = as.character(paste0( patient_num, "*",days_since_admission))) %>%
+      select( patient_num, pair, concept_code )
+    observations$concept_code <- as.character(observations$concept_code)
+```
+
+```{r}
+observations$concept_code <- as.character( observations$concept_code)
+  
+  clinical <- clinical_raw %>%
+    mutate( pair = as.character(paste0( patient_num, "*",days_since_admission))) %>%
+    select( patient_num, pair, calendar_date, severe, deceased)
+  
+  final <- merge( observations, clinical, by="pair") 
+  
+  final <- final %>%
+    mutate(patient_num = patient_num.x) %>%
+    select(patient_num, concept_code, calendar_date, severe )
+```
+
+## Demographic summary
+
+```{r}
+## Select of demographic data
+demographics <- unique( demo_raw %>%
+                        select( patient_num, age_group, sex ) )
+
+demographics$subset <- ifelse( demographics$patient_num %in% final$patient_num, "Subset Yes", "Subset No")
+  
+## Create the summary table 1
+table1(~ sex + age_group  | subset , data=demographics )
+```
+
+## Format the data for the temporal variability analysis
+```{r}
+## Remove the patient identifier and remove duplicates
+final <- final[, -1 ]
+final <- final[!duplicated( final ), ]
+  
+## Put the date column as class Date
+final <- EHRtemporalVariability::formatDate(
+    input         = final,
+    dateColumn    = "calendar_date",
+    dateFormat = "%Y-%m-%d"
+)
+```
+
+## Heatmap output visualization
+
+### By week
+```{r, warning=FALSE}
+probMaps_week <- estimateDataTemporalMap(data         = final, 
+                                    dateColumnName = "calendar_date", 
+                                    period         = "week")
+
+if( obfuscation !=  FALSE ){
+    
+    for( i in 1:length(probMaps_week)){
+      probMaps_week[[i]]@countsMap[probMaps_week[[i]]@countsMap > 0 & probMaps_week[[i]]@countsMap <= obfuscation ] <- 0.5 * obfuscation
+    }
+}
+
+plotDataTemporalMap(
+    dataTemporalMap =  probMaps_week[["concept_code"]],
+    startValue = 1,
+    endValue = 20,
+    colorPalette    = "Magma", 
+    absolute = TRUE)
+```
+
+### By month
+```{r, warning=FALSE}
+probMaps_month <- estimateDataTemporalMap(data         = final, 
+                                    dateColumnName = "calendar_date", 
+                                    period         = "month")
+if( obfuscation !=  FALSE ){
+    for( i in 1:length(probMaps_month)){
+      probMaps_month[[i]]@countsMap[probMaps_month[[i]]@countsMap > 0 & probMaps_month[[i]]@countsMap <= obfuscation ] <- 0.5 * obfuscation
+    }
+}
+
+plotDataTemporalMap(
+    dataTemporalMap =  probMaps_month[["concept_code"]],
+    startValue = 1,
+    endValue = 20,
+    colorPalette    = "Magma", 
+    absolute = TRUE)
+```
+
+# R session information
+```{r}
+sessionInfo()
+```
+

@@ -1,0 +1,109 @@
+ICD10	Description
+F00	Dementia in Alzheimer's disease
+F01	Vascular dementia
+F02	Dementia in other diseases classified elsewhere
+F03	Unspecified dementia
+F04	Organic amnesic syndrome, not induced by alcohol and other substances
+F05	Delirium, not induced by alcohol and other psychoactive substances
+F06	Other mental disorders due to brain damage and dysfunction and to physical disease
+F07	Personality and behavioural disorder due to brain disease, damage and dysfunction
+F09	Unspecified organic or symptomatic mental disorder
+F10	Mental and behavioural disorders due to use of alcohol
+F11	Mental and behavioural disorders due to use of opioids
+F12	Mental and behavioural disorders due to use of cannabinoids
+F13	Mental and behavioural disorders due to use of sedatives or hypnotics
+F14	Mental and behavioural disorders due to use of cocaine
+F15	Mental and behavioural disorders due to use of other stimulants, including caffeine
+F16	Mental and behavioural disorders due to use of hallucinoeens
+F17	Mental and behavioural disorders due to use of tobacco
+F18	Mental and behavioural disorders due to use of volatile solvents
+F19	Mental and behavioural disorders due to multiple drug use and use of other psychoactive substances
+F20	Schizophrenia
+F21	Schizotypal disorder
+F22	Persistent delusional disorders
+F23	Acute and transient psychotic disorders
+F24	Induced delusional disorder
+F25	Schizoaffective disorders
+F28	Other nonorganic psychotic disorders
+F29	Unspecified nonorganic psychosis
+F30	Manic episode
+F31	Bipolar affective disorder
+F32	Depressive episode
+F33	Recurrent depressive disorder
+F34	Persistent mood [affective] disorders
+F38	Other mood [affective] disorders
+F39	Unspecified mood [affective] disorder
+F40	Phobic anxiety disorders
+F41	Other anxiety disorders
+F42	Obsessive - compulsive disorder
+F43	Reaction to severe stress, and adjustment disorders
+F44	Dissociative [conversion] disorders
+F45	Somatoform disorders
+F48	Other neurotic disorders
+F50	Eating disorders
+F51	Nonorganic sleep disorders
+F52	Sexual dysfunction, not caused by organic disorder or disease
+F53	Mental and behavioural disorders associated with the puerperium, not elsewhere classified
+F54	Psychological and behavioural factors associated with disorders or diseases classified elsewhere
+F55	Abuse of non-dependence-producing substances
+F59	Unspecified behavioural syndromes associated with physiological disturbances and physical factors 
+F60	Specific personality disorders
+F61	Mixed and other personality disorders
+F62	Enduring personality changes, not attributable to brain damage and disease
+F63	Habit and impulse disorders
+F64	Gender identity disorders
+F65	Disorders of sexual preference
+F66	Psychological and behavioural disorders associated with sexual development and orientation
+F68	Other disorders of adult personality and behaviour
+F69	Unspecified disorder of adult personality and behaviour
+F70	Mild mental retardation
+F71	Moderate mental retardation
+F72	Severe mental retardation
+F73	Profound mental retardation
+F78	Other mental retardation
+F79	Unspecified mental retardation
+F80	Specific developmental disorders of speech and language
+F81	Specific developmental disorders of scholastic skills
+F82	Specific developmental disorder of motor function
+F83	Mixed specific developmental disorders
+F84	Pervasive developmental disorders
+F88	Other disorders of psychological development
+F89	Unspecified disorder of psychological development
+F90	Hyperkinetic disorders
+F91	Conduct disorders
+F92	Mixed disorders of conduct and emotions
+F93	Emotional disorders with onset specific to childhood
+F94	Disorders of social functioning with onset specific to childhood and adolescence
+F95	Tic disorders
+F98	Other behavioural and emotional disorders with onset usually occurring in childhood and adolescence
+F99	Unspecified mental disorder
+X71	Intentional self-harm by drowning and submersion
+X72	Intentional self-harm by handgun discharge
+X73	Intentional self-harm by rifle, shotgun and larger firearm discharge
+X74	Intentional self-harm by other and unspecified firearm and gun discharge
+X75	Intentional self-harm by explosive material
+X76	Intentional self-harm by smoke, fire and flames
+X77	Intentional self-harm by steam, hot vapors and hot objects
+X78	Intentional self-harm by sharp object
+X79	Intentional self-harm by blunt object
+X80	Intentional self-harm by jumping from a high place
+X81	Intentional self-harm by jumping or lying in front of moving object
+X82	Intentional self-harm by crashing of motor vehicle
+X83	Intentional self-harm by other specified means
+T14	Injury of unspecified body region
+T71	Asphyxiation
+T36	Poisoning by, adverse effect of and underdosing of systemic antibiotics
+T37	Poisoning by, adverse effect of and underdosing of other systemic anti-infectives and antiparasitics
+T38	Poisoning by, adverse effect of and underdosing of hormones and their synthetic substitutes and antagonists, not elsewhere classified
+T39	Poisoning by, adverse effect of and underdosing of nonopioid analgesics, antipyretics and antirheumatics
+T40	Poisoning by, adverse effect of and underdosing of narcotics and psychodysleptics [hallucinogens]
+T41	Poisoning by, adverse effect of and underdosing of anesthetics and therapeutic gases
+T42	Poisoning by, adverse effect of and underdosing of antiepileptic, sedative- hypnotic and antiparkinsonism drugs
+T43	Poisoning by, adverse effect of and underdosing of psychotropic drugs, not elsewhere classified
+T44	Poisoning by, adverse effect of and underdosing of drugs primarily affecting the autonomic nervous system
+T45	Poisoning by, adverse effect of and underdosing of primarily systemic and hematological agents, not elsewhere classified
+T46	Poisoning by, adverse effect of and underdosing of agents primarily affecting the cardiovascular system
+T47	Poisoning by, adverse effect of and underdosing of agents primarily affecting the gastrointestinal system
+T48	Poisoning by, adverse effect of and underdosing of agents primarily acting on smooth and skeletal muscles and the respiratory system
+T49	Poisoning by, adverse effect of and underdosing of topical agents primarily affecting skin and mucous membrane and by ophthalmological, otorhinorlaryngological and dental drugs
+T50	Poisoning by, adverse effect of and underdosing of diuretics and other and unspecified drugs, medicaments and biological substances

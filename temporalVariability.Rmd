@@ -16,7 +16,7 @@ paket <- function(pak){
   sapply(pak, library, character.only = TRUE)
 }
 
-listOfPackages <- c("EHRtemporalVariability", "dplyr", "tidyr", "tidyverse", "table1", "plotly", "DT")
+listOfPackages <- c("EHRtemporalVariability", "dplyr", "tidyr", "tidyverse", "tableone", "plotly", "DT")
 paket(listOfPackages)
 ```
 

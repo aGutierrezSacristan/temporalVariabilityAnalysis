@@ -1,18 +1,13 @@
 ---
-title: "Temporal Variability in Pediatric population: BCH"
+title: "Temporal Variability in Pediatric population: SITEID"
 output:
   html_document:
     toc: true
     toc_float: true
     code_folding: show
 ---
-```{r setup, message=FALSE, warning=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-# Set output directories
-output_dir <- "htmls"
-```
 
-```{r setup, message=FALSE, warning=FALSE, results='hide'}
+```{r libraries, message=FALSE, warning=FALSE, results='hide'}
 # Install packages
 paket <- function(pak){
   new_pak <- pak[!(pak %in% rownames(installed.packages()))]
@@ -35,10 +30,9 @@ theme_set(theme_bw() +
 ## Data read-in
 
 Read the functions and data needed for the analysis. 
-```{r bch, message=FALSE}
+```{r suppData, message=FALSE}
 source("R/readInputFiles.R")
-autoimmune <- read.delim('public-data/autoimmuneDisease.txt')
-autoimmune <- unique(autoimmune[, c("ICD10.parent.code", "Parent.Group")])
+autoimmune <- read.delim('public-data/autoimmuneICD10codes.txt')
 mentalDisorder <- read.delim('public-data/icd10_categories_mentalDisorders.txt')
 ```
 
@@ -337,7 +331,7 @@ final <- EHRtemporalVariability::formatDate(
 
 ### Add the description of the ICD codes for mental disorders
 ```{r}
-phecode <- read.csv("public_data/phecode_icd10.csv", colClasses = "character")
+phecode <- read.csv("public-data/phecode_icd10.csv", colClasses = "character")
 
 phecode$Phenotype <- ifelse( phecode$Phenotype == "", phecode$ICD10.String, phecode$Phenotype )
       phecode <- unique( phecode %>%

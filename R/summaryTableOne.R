@@ -4,9 +4,9 @@ summaryTableOne <- function( df, obfuscation, stratifyBy ){
   table_one_vars <- c("sex","age_group")
   
   if( stratifyBy != "PheWAS code"){
-    table_one <- tableone::CreateTableOne(data=demographics,vars=table_one_vars,strata="subset")
+    table_one <- tableone::CreateTableOne(data=df,vars=table_one_vars,strata="subset")
   }else{
-    table_one <- tableone::CreateTableOne(data=demographics,vars=table_one_vars)
+    table_one <- tableone::CreateTableOne(data=df,vars=table_one_vars)
     
   }
   

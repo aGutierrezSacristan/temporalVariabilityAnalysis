@@ -1,10 +1,14 @@
 ---
-title: "Temporal Variability in Pediatric population: SITEID"
+title: 'Temporal Variability in Pediatric population: SITEID'
 output:
   html_document:
-    toc: true
-    toc_float: true
     code_folding: show
+    toc: yes
+    toc_float: yes
+  pdf_document:
+    toc: yes
+  word_document:
+    toc: yes
 ---
 
 ```{r libraries, message=FALSE, warning=FALSE, results='hide'}
@@ -56,6 +60,9 @@ clinical_raw <- files[[3]]
 ### Determine the obfuscation threshold (FALSE if no obfuscation, the numeric value of the obfuscation threshold if any)
 obfuscation =  FALSE
 #obfuscation = 3
+
+### Determine if you want to visualize counts or frequencies
+absoluteValue = TRUE
 ```
 
 # Mental Disorders
@@ -145,7 +152,7 @@ plotDataTemporalMap(
     startValue = 1,
     endValue = 20,
     colorPalette    = "Magma", 
-    absolute = TRUE)
+    absolute = absoluteValue)
 
 ```
 
@@ -166,7 +173,7 @@ plotDataTemporalMap(
     startValue = 1,
     endValue = 20,
     colorPalette    = "Magma", 
-    absolute = FALSE)
+    absolute = absoluteValue)
 ```
 
 # Autoimmune disorders
@@ -251,7 +258,7 @@ plotDataTemporalMap(
     startValue = 1,
     endValue = 20,
     colorPalette    = "Magma", 
-    absolute = TRUE)
+    absolute = absoluteValue)
 ```
 
 ### By month
@@ -270,7 +277,7 @@ plotDataTemporalMap(
     startValue = 1,
     endValue = 20,
     colorPalette    = "Magma", 
-    absolute = TRUE)
+    absolute = absoluteValue)
 ```
 
 # Aggregated by PheWAS category
@@ -358,7 +365,9 @@ plotDataTemporalMap(
     startValue = 1,
     endValue = 20,
     colorPalette    = "Magma", 
-    absolute = TRUE)
+    absolute = absoluteValue)
+
+save( probMaps_week, file="/4ceData/temporalVariability/export.RData")
 ```
 
 ### By month
@@ -376,7 +385,7 @@ plotDataTemporalMap(
     startValue = 1,
     endValue = 20,
     colorPalette    = "Magma", 
-    absolute = TRUE)
+    absolute = absoluteValue)
 ```
 
 
@@ -451,7 +460,7 @@ plotDataTemporalMap(
     startValue = 1,
     endValue = 20,
     colorPalette    = "Magma", 
-    absolute = TRUE)
+    absolute = absoluteValue)
 ```
 
 ### By month
@@ -470,7 +479,7 @@ plotDataTemporalMap(
     startValue = 1,
     endValue = 20,
     colorPalette    = "Magma", 
-    absolute = TRUE)
+    absolute = absoluteValue)
 ```
 
 # R session information

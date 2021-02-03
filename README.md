@@ -11,7 +11,8 @@ Then open the file temporalVariability.Rmd and:
     - obfuscation = FALSE if no obfuscation
     - the numeric value of the obfuscation threshold if any; e.g. obfuscation = 3
     Make sure you comment the existing obfuscation line, set up as FALSE
-    
+- change the absoluteValue variable as TRUE or FALSE to indicate if you want to visualize in the heatmaps the counts (absoluteValue = TRUE), or the frequencies (absoluteValue = FALSE)
+  
 
 After all these changes are done, run the temporalVariability.Rmd, as an output an html file named: temporalVariability.html should be generated. 
 

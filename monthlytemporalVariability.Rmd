@@ -1,0 +1,181 @@
+---
+title: 'Monthly Temporal Variability in Pediatric population: SITEID'
+output:
+  html_document:
+    code_folding: show
+    toc: yes
+    toc_float: yes
+  pdf_document:
+    toc: yes
+  word_document:
+    toc: yes
+---
+
+```{r libraries, message=FALSE, warning=FALSE, results='hide'}
+# Install packages
+paket <- function(pak){
+  new_pak <- pak[!(pak %in% rownames(installed.packages()))]
+  if (length(new_pak)) 
+    install.packages(new_pak, dependencies = TRUE,repos="https://cloud.r-project.org/",lib=userLibDir)
+  sapply(pak, library, character.only = TRUE)
+}
+
+listOfPackages <- c("EHRtemporalVariability", "dplyr", "tidyr", "tidyverse", "tableone", "plotly", "DT")
+paket(listOfPackages)
+```
+
+```{r}
+theme_set(theme_bw() + 
+            theme(legend.title = element_blank(),
+                  panel.grid.minor = element_blank()))
+```
+
+
+## Data read-in
+
+Read the functions and data needed for the analysis. 
+```{r suppData, message=FALSE}
+source("R/readInputFiles.R")
+source("R/summaryTableOne.R")
+source("R/dataFormat.R")
+autoimmune <- read.delim('public-data/autoimmuneICD10codes.txt')
+mentalDisorder <- read.delim('public-data/icd10_categories_mentalDisorders.txt')
+```
+
+Read the input files.
+
+```{r message=FALSE, warning=FALSE}
+### Read the CSV input files
+#change to the path where your phase 2.1 data files are located
+myinputFiles <- "/4ceData/Input/"
+files <- readInputFiles( path      = myinputFiles, 
+                         separator = ",",
+                         skip      = 0, 
+                         verbose   = FALSE )
+  
+### Extract the patient summary and observation information. 
+demo_raw <- files[[1]]
+obs_raw <- files[[2]]
+clinical_raw <- files[[3]]
+
+### Select only pediatric subset
+demo_raw     <- demo_raw[ demo_raw$age_group %in% c("00to02", "03to05", "06to11","12to17", "18to25"), ]
+obs_raw      <- obs_raw[ obs_raw$patient_num %in% demo_raw$patient_num, ]
+clinical_raw <- clinical_raw[ clinical_raw$patient_num %in% demo_raw$patient_num, ]
+
+### Determine the obfuscation threshold (FALSE if no obfuscation, the numeric value of the obfuscation threshold if any)
+obfuscation =  FALSE
+#obfuscation = 3
+
+### Determine if you don't want to visualize counts
+absoluteValue = FALSE
+
+### Determine the analysis period
+period = "month"
+```
+
+# Mental Disorders
+ICD10 codes extracted from: The ICD-10 Classification of Mental and Behavioural Disorders Clinical descriptions and diagnostic guidelines by the World Health Organization https://www.who.int/classifications/icd/en/bluebook.pdf
+
+Suidice related codes added from: https://www.cdc.gov/nchs/data/nhsr/nhsr108.pdf 
+
+```{r}
+DT::datatable( mentalDisorder, rownames = FALSE )
+```
+
+```{r  message=FALSE, warning=FALSE}
+probmaps_md <- tempVariability( VarSelection = "mental", 
+                     observations = obs_raw,
+                     clinical    = clinical_raw, 
+                     demographics = demo_raw, 
+                     period = period, 
+                     obfuscation = obfuscation, 
+                     absoluteValue = absoluteValue)
+
+plotDataTemporalMap(
+      dataTemporalMap =  probmaps_md[["mentaldescriptionShort"]],
+      startValue = 1,
+      endValue = 20,
+      colorPalette    = "Magma", 
+      absolute = absoluteValue)
+```
+
+
+# Autoimmune disorders
+
+```{r}
+DT::datatable( autoimmune, rownames = FALSE )
+```
+
+
+```{r  message=FALSE, warning=FALSE}
+probmaps_ad <- tempVariability( VarSelection = "autoimmune", 
+                     observations = obs_raw,
+                     clinical    = clinical_raw, 
+                     demographics = demo_raw, 
+                     period = period, 
+                     obfuscation = obfuscation, 
+                     absoluteValue = absoluteValue)
+
+plotDataTemporalMap(
+      dataTemporalMap =  probmaps_ad[["autoimmunedescriptionShort"]],
+      startValue = 1,
+      endValue = 20,
+      colorPalette    = "Magma", 
+      absolute = absoluteValue)
+```
+
+# Aggregated by PheWAS category
+PheCode mapping file downloaded from: https://phewascatalog.org/phecodes_icd10 
+
+
+```{r  message=FALSE, warning=FALSE}
+probmaps_pc <- tempVariability( VarSelection = "phecodes", 
+                     observations = obs_raw,
+                     clinical    = clinical_raw, 
+                     demographics = demo_raw, 
+                     period = period, 
+                     obfuscation = obfuscation, 
+                     absoluteValue = absoluteValue)
+
+plotDataTemporalMap(
+      dataTemporalMap =  probmaps_pc[["phecodesdescriptionShort"]],
+      startValue = 1,
+      endValue = 20,
+      colorPalette    = "Magma", 
+      absolute = absoluteValue)
+```
+
+
+# Medication
+
+```{r  message=FALSE, warning=FALSE}
+probmaps_meds <- tempVariability( VarSelection = "medication", 
+                     observations = obs_raw,
+                     clinical    = clinical_raw, 
+                     demographics = demo_raw, 
+                     period = period, 
+                     obfuscation = obfuscation, 
+                     absoluteValue = absoluteValue)
+
+plotDataTemporalMap(
+      dataTemporalMap =  probmaps_meds[["medicationconcept_code"]],
+      startValue = 1,
+      endValue = 20,
+      colorPalette    = "Magma", 
+      absolute = absoluteValue)
+```
+
+# Save the RData file
+```{r}
+probMaps <- c(probmaps_md, probmaps_ad, probmaps_pc, probmaps_meds)
+igtProjs <- sapply ( probMaps, estimateIGTProjection )
+save(probMaps, igtProjs, file = paste0("myExport_", period, ".RData"))
+```
+
+
+# R session information
+```{r}
+sessionInfo()
+```
+

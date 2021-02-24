@@ -1,5 +1,6 @@
 # temporalVariabilityAnalysis
 4CE Phase 2.1 Temporal Variability Analysis in Children
+These analysis are done using the R library EHRtemporalVariability. For detail information about this library you can check the publication (https://doi.org/10.1093/gigascience/giaa079): Carlos Sáez, Alba Gutiérrez-Sacristán, Isaac Kohane, Juan M García-Gómez, Paul Avillach. EHRtemporalVariability: delineating temporal data-set shifts in Electronic Health Records. GigaScience, Volume 9, Issue 8, August 2020
 
 ## How to run this first approach?
 First, clone the repository: git clone https://github.com/aGutierrezSacristan/temporalVariabilityAnalysis

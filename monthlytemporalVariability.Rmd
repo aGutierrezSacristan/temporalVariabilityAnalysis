@@ -37,7 +37,7 @@ Read the functions and data needed for the analysis.
 ```{r suppData, message=FALSE}
 source("R/readInputFiles.R")
 source("R/summaryTableOne.R")
-source("R/dataFormat.R")
+source("R/tempVariability.R")
 autoimmune <- read.delim('public-data/autoimmuneICD10codes.txt')
 mentalDisorder <- read.delim('public-data/icd10_categories_mentalDisorders.txt')
 ```

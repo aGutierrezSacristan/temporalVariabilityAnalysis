@@ -59,7 +59,7 @@ obs_raw <- files[[2]]
 clinical_raw <- files[[3]]
 
 ### Select only pediatric subset
-demo_raw     <- demo_raw[ demo_raw$age_group %in% c("00to02", "03to05", "06to11","12to17", "18to25"), ]
+demo_raw     <- demo_raw[ demo_raw$age_group %in% c("00to02", "03to05", "06to11","12to17"), ]
 obs_raw      <- obs_raw[ obs_raw$patient_num %in% demo_raw$patient_num, ]
 clinical_raw <- clinical_raw[ clinical_raw$patient_num %in% demo_raw$patient_num, ]
 

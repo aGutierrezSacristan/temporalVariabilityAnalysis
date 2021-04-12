@@ -166,11 +166,12 @@ plotDataTemporalMap(
       absolute = absoluteValue)
 ```
 
-# Save the RData file
+# Save the RData file (if the RData file is not correctly generated, you can try to change the extension to .rda, uncomment the last line of code in this chunk).
 ```{r}
 probMaps <- c(probmaps_md, probmaps_ad, probmaps_pc, probmaps_meds)
 igtProjs <- sapply ( probMaps, estimateIGTProjection )
 save(probMaps, igtProjs, file = paste0("myExport_", period, ".RData"))
+#save(probMaps, igtProjs, file = paste0("myExport_", period, ".rda"))
 ```
 
 

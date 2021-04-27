@@ -6,10 +6,9 @@ tempVariability <- function( VarSelection, obfuscation, observations, clinical, 
       filter( concept_type == 'DIAG-ICD10', days_since_admission >= 0, concept_code %in% mentalDisorder$ICD10) %>%
       mutate( pair = as.character(paste0( patient_num, "*",days_since_admission))) %>%
       select( patient_num, pair, concept_code )
-  }else if( VarSelection == "autoimmune"){
-    colnames( autoimmune )[2] <- "description"
+  }else if( VarSelection == "all"){
     observations <- observations %>%
-      filter( concept_type == 'DIAG-ICD10', days_since_admission >= 0, concept_code %in% autoimmune$ICD10) %>%
+      filter( concept_type == 'DIAG-ICD10', days_since_admission >= 0) %>%
       mutate( pair = as.character(paste0( patient_num, "*",days_since_admission))) %>%
       select( patient_num, pair, concept_code )
   }else if( VarSelection == "phecodes"){
@@ -22,7 +21,14 @@ tempVariability <- function( VarSelection, obfuscation, observations, clinical, 
       filter( concept_type == 'MED-CLASS', days_since_admission >= 0) %>%
       mutate( pair = as.character(paste0( patient_num, "*",days_since_admission))) %>%
       select( patient_num, pair, concept_code )
-  }
+  }else if( VarSelection == "category"){
+    observations <- observations %>%
+      filter( concept_type == 'DIAG-ICD10', days_since_admission >= 0) %>%
+      mutate( pair = as.character(paste0( patient_num, "*",days_since_admission))) %>%
+      select( patient_num, pair, concept_code )
+    observations$concept_code <- ifelse( substr( observations$concept_code,1,1) %in% c("D", "H"), substr( observations$concept_code,1,2), substr( observations$concept_code,1,1))
+    observations <- observations[!duplicated( observations), ]
+    }
   
   observations$concept_code <- as.character( observations$concept_code)
   
@@ -73,8 +79,10 @@ tempVariability <- function( VarSelection, obfuscation, observations, clinical, 
   
     if( VarSelection == "mental"){
       final <- merge( final, mentalDisorder, by.x = "concept_code", by.y = "ICD10")
-    }else if( VarSelection ==  "autoimmune"){
-      final <- merge( final, autoimmune, by.x = "concept_code", by.y = "ICD10")
+      final$description <- as.character(final$description)
+      final$descriptionShort <- substr(final$description, 1, 40)
+    }else if( VarSelection ==  "all"){
+      final <- final
     }else if( VarSelection == "phecodes"){
       phecode <- read.csv("public-data/phecode_icd10.csv", colClasses = "character")
       phecode$Phenotype <- ifelse( phecode$Phenotype == "", phecode$ICD10.String, phecode$Phenotype )
@@ -82,10 +90,16 @@ tempVariability <- function( VarSelection, obfuscation, observations, clinical, 
                            mutate( concept_code = ICD10, description = Phenotype ) %>%
                            select( concept_code, PheCode, description ))
       final <- merge( final, phecode)
+      final$description <- as.character(final$description)
+      final$descriptionShort <- substr(final$description, 1, 40)
+    }else if( VarSelection == "category"){
+      icdCategory <- read.delim("public-data/icd10Codes.txt", header = FALSE, colClasses = "character")
+      colnames(icdCategory) <- c("concept_code", "Description")
+      final <- merge( final, icdCategory, by = "concept_code")
+      final <- final[!duplicated( final ), ]  
     }
     
-    final$description <- as.character(final$description)
-    final$descriptionShort <- substr(final$description, 1, 40)
+
   }  
   
   probMaps <- estimateDataTemporalMap(data           = final, 
@@ -99,21 +113,21 @@ tempVariability <- function( VarSelection, obfuscation, observations, clinical, 
   }
   names(probMaps) <- paste0( VarSelection,names(probMaps))
   
-  if( VarSelection != "medication"){
-    print( plotDataTemporalMap(
-      dataTemporalMap =  probMaps[[paste0( VarSelection,"descriptionShort")]],
-      startValue = 1,
-      endValue = 20,
-      colorPalette    = "Magma", 
-      absolute = absoluteValue))
-  }else{
-    print( plotDataTemporalMap(
-      dataTemporalMap =  probMaps[[paste0( VarSelection,"concept_code")]],
-      startValue = 1,
-      endValue = 20,
-      colorPalette    = "Magma", 
-      absolute = absoluteValue))
-  }
+  # if( VarSelection %in% c("mental", "phecodes")){
+  #   print( plotDataTemporalMap(
+  #     dataTemporalMap =  probMaps[[paste0( VarSelection,"descriptionShort")]],
+  #     startValue = 1,
+  #     endValue = 20,
+  #     colorPalette    = "Magma", 
+  #     absolute = absoluteValue))
+  # }else{
+  #   print( plotDataTemporalMap(
+  #     dataTemporalMap =  probMaps[[paste0( VarSelection,"concept_code")]],
+  #     startValue = 1,
+  #     endValue = 20,
+  #     colorPalette    = "Magma", 
+  #     absolute = absoluteValue))
+  # }
   
   return( probMaps)
   

@@ -38,8 +38,11 @@ Read the functions and data needed for the analysis.
 source("R/readInputFiles.R")
 source("R/summaryTableOne.R")
 source("R/tempVariability.R")
+source("R/countsPerPatientMonth.R")
+source("R/countsPerAgeGroup.R")
 autoimmune <- read.delim('public-data/autoimmuneICD10codes.txt')
 mentalDisorder <- read.delim('public-data/icd10_categories_mentalDisorders.txt')
+icdCategory <- read.delim("public-data/icd10Codes.txt", header = FALSE, colClasses = "character")
 ```
 
 Read the input files.
@@ -68,10 +71,20 @@ obfuscation =  FALSE
 #obfuscation = 3
 
 ### Determine if you don't want to visualize counts
-absoluteValue = FALSE
+absoluteValue = TRUE
 
 ### Determine the analysis period
 period = "month"
+```
+
+```{r}
+counts <- countsPerPatientMonth( observationFile = obs_raw, clinicalFile = clinical_raw, type = "diagnosis", obfuscation = obfuscation)
+counts%>% ggplot() +
+  geom_line(aes(x = year_month,y = distinct_patients, group=1), color = "red",linetype = "dotted") +
+  labs(x = "calendar months", y = "number patients consulting for condition")+
+  theme_bw()+
+  theme(strip.text.x = element_text(size = 7), text = element_text(size=9), 
+        axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
 ```
 
 # Mental Disorders
@@ -96,31 +109,7 @@ plotDataTemporalMap(
       dataTemporalMap =  probmaps_md[["mentaldescriptionShort"]],
       startValue = 1,
       endValue = 20,
-      colorPalette    = "Magma", 
-      absolute = absoluteValue)
-```
-
-
-# Autoimmune disorders
-
-```{r}
-DT::datatable( autoimmune, rownames = FALSE )
-```
-
-
-```{r  message=FALSE, warning=FALSE}
-probmaps_ad <- tempVariability( VarSelection = "autoimmune", 
-                     observations = obs_raw,
-                     clinical    = clinical_raw, 
-                     demographics = demo_raw, 
-                     period = period, 
-                     obfuscation = obfuscation, 
-                     absoluteValue = absoluteValue)
-
-plotDataTemporalMap(
-      dataTemporalMap =  probmaps_ad[["autoimmunedescriptionShort"]],
-      startValue = 1,
-      endValue = 20,
+      startDate = "2020-04-01",
       colorPalette    = "Magma", 
       absolute = absoluteValue)
 ```
@@ -142,12 +131,72 @@ plotDataTemporalMap(
       dataTemporalMap =  probmaps_pc[["phecodesdescriptionShort"]],
       startValue = 1,
       endValue = 20,
+      startDate = "2020-04-01",
       colorPalette    = "Magma", 
       absolute = absoluteValue)
 ```
 
+# All ICD codes
+
+```{r  message=FALSE, warning=FALSE}
+probmaps_all <- tempVariability( VarSelection = "all", 
+                     observations = obs_raw,
+                     clinical    = clinical_raw, 
+                     demographics = demo_raw, 
+                     period = period, 
+                     obfuscation = obfuscation, 
+                     absoluteValue = absoluteValue)
+ 
+plotDataTemporalMap(
+       dataTemporalMap =  probmaps_all$allconcept_code,
+       startValue = 1,
+       endValue = 20,
+       startDate = "2020-03-01",
+       colorPalette    = "Magma", 
+       absolute = absoluteValue)
+```
+
+# Higher general categories
+
+
+```{r}
+DT::datatable( icdCategory, rownames = FALSE )
+```
+
+```{r}
+probmaps_category <- tempVariability( VarSelection = "category", 
+                     observations = obs_raw,
+                     clinical    = clinical_raw, 
+                     demographics = demo_raw, 
+                     period = period, 
+                     obfuscation = obfuscation, 
+                     absoluteValue = absoluteValue)
+
+plotDataTemporalMap(
+       dataTemporalMap =  probmaps_category$categoryDescription,
+       startValue = 1,
+       endValue = 20,
+       startDate = "2020-03-01",
+       colorPalette    = "Magma", 
+       absolute = absoluteValue)
+```
+
+```{r}
+counts <- countsPerAgeGroup( observationFile = obs_raw, clinicalFile = clinical_raw, demogFile = demo_raw, obfuscation = FALSE)
+```
 
 # Medication
+
+```{r}
+countsMeds <- countsPerPatientMonth( observationFile = obs_raw, clinicalFile = clinical_raw, type = "medication", obfuscation = obfuscation)
+countsMeds%>% ggplot() +
+  geom_line(aes(x = year_month,y = distinct_patients, group=1), color = "red",linetype = "dotted") +
+  labs(x = "calendar months", y = "number patients consulting for condition")+
+  theme_bw()+
+  theme(strip.text.x = element_text(size = 7), text = element_text(size=9), 
+        axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+```
+
 
 ```{r  message=FALSE, warning=FALSE}
 probmaps_meds <- tempVariability( VarSelection = "medication", 
@@ -166,11 +215,13 @@ plotDataTemporalMap(
       absolute = absoluteValue)
 ```
 
-# Save the RData file (if the RData file is not correctly generated, you can try to change the extension to .rda, uncomment the last line of code in this chunk).
+# Save the RData file. 
+If the RData file is not correctly generated, you can try to change the extension to .rda, uncomment the last line of code in this chunk.
 ```{r}
-probMaps <- c(probmaps_md, probmaps_ad, probmaps_pc, probmaps_meds)
+probMaps <- c(probmaps_md, probmaps_all, probmaps_pc, probmaps_category, probmaps_meds)
 igtProjs <- sapply ( probMaps, estimateIGTProjection )
-save(probMaps, igtProjs, file = paste0("myExport_", period, ".RData"))
+countsDf <- c( counts, countsMeds)
+save(probMaps, igtProjs, countsDf, file = paste0("myExport_", period, ".RData"))
 #save(probMaps, igtProjs, file = paste0("myExport_", period, ".rda"))
 ```
 

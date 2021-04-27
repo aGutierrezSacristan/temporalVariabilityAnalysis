@@ -1,0 +1,35 @@
+A	Certain infectious and parasitic diseases
+B	Certain infectious and parasitic diseases
+C	Neoplams
+D1	Neoplams
+D2	Neoplams
+D3	Neoplams
+D4	Neoplams
+D5	Diseases of the blood
+D6	Diseases of the blood
+D7	Diseases of the blood
+D8	Diseases of the blood
+E	Endocrine, nutritional and metabolic diseases
+F	Mental, Behavioral and Neurodevelopmental disorders
+G	Diseases of the nervous system
+H1	Diseases of the eye and adnexa
+H2	Diseases of the eye and adnexa
+H3	Diseases of the eye and adnexa
+H4	Diseases of the eye and adnexa
+H5	Diseases of the eye and adnexa
+H6	Diseases of the ear and mastoid process
+H7	Diseases of the ear and mastoid process
+H8	Diseases of the ear and mastoid process
+H9	Diseases of the ear and mastoid process
+I	Diseases of the circulatory system
+J	Diseases of the respiratory system
+K	Diseases of the digestive system
+L	Diseases of the skin and subcutaneous tissue
+M	Diseases of the musculoskeletal system and connective tissue
+N	Diseases of the genitourinary system
+O	Pregnancy, childbirth and the puerperium
+P	Certain conditions originating in the perinatal period
+Q	Congenital malformations, deformations and chromosomal abnormalities
+R	Symptoms, signs
+S	Injury, poisoning
+T	Injury, poisoning

@@ -33,7 +33,8 @@ countsPerPatientMonth <- function( observationFile, clinicalFile, obfuscation, t
   
   if( obfuscation != FALSE){
     counts$distinct_patients <- ifelse( counts$distinct_patients < obfuscation, 0.5 * obfuscation, counts$distinct_patients)
-    }
+  }
+  counts <- list(counts)
   return( counts )
   
   }

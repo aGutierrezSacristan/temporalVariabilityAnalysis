@@ -40,7 +40,6 @@ source("R/summaryTableOne.R")
 source("R/tempVariability.R")
 source("R/countsPerPatientMonth.R")
 source("R/countsPerAgeGroup.R")
-autoimmune <- read.delim('public-data/autoimmuneICD10codes.txt')
 mentalDisorder <- read.delim('public-data/icd10_categories_mentalDisorders.txt')
 icdCategory <- read.delim("public-data/icd10Codes.txt", header = FALSE, colClasses = "character")
 ```
@@ -79,7 +78,7 @@ period = "month"
 
 ```{r}
 counts <- countsPerPatientMonth( observationFile = obs_raw, clinicalFile = clinical_raw, type = "diagnosis", obfuscation = obfuscation)
-counts%>% ggplot() +
+counts[[1]] %>% ggplot() +
   geom_line(aes(x = year_month,y = distinct_patients, group=1), color = "red",linetype = "dotted") +
   labs(x = "calendar months", y = "number patients consulting for condition")+
   theme_bw()+
@@ -189,7 +188,7 @@ counts <- countsPerAgeGroup( observationFile = obs_raw, clinicalFile = clinical_
 
 ```{r}
 countsMeds <- countsPerPatientMonth( observationFile = obs_raw, clinicalFile = clinical_raw, type = "medication", obfuscation = obfuscation)
-countsMeds%>% ggplot() +
+countsMeds[[1]]%>% ggplot() +
   geom_line(aes(x = year_month,y = distinct_patients, group=1), color = "red",linetype = "dotted") +
   labs(x = "calendar months", y = "number patients consulting for condition")+
   theme_bw()+

@@ -77,8 +77,8 @@ period = "month"
 ```
 
 ```{r}
-counts <- countsPerPatientMonth( observationFile = obs_raw, clinicalFile = clinical_raw, type = "diagnosis", obfuscation = obfuscation)
-counts[[1]] %>% ggplot() +
+counts_all <- countsPerPatientMonth( observationFile = obs_raw, clinicalFile = clinical_raw, type = "diagnosis", obfuscation = obfuscation)
+counts_all[[1]] %>% ggplot() +
   geom_line(aes(x = year_month,y = distinct_patients, group=1), color = "red",linetype = "dotted") +
   labs(x = "calendar months", y = "number patients consulting for condition")+
   theme_bw()+
@@ -219,7 +219,7 @@ If the RData file is not correctly generated, you can try to change the extensio
 ```{r}
 probMaps <- c(probmaps_md, probmaps_all, probmaps_pc, probmaps_category, probmaps_meds)
 igtProjs <- sapply ( probMaps, estimateIGTProjection )
-countsDf <- c( counts, countsMeds)
+countsDf <- c( counts_all, counts, countsMeds)
 save(probMaps, igtProjs, countsDf, file = paste0("myExport_", period, ".RData"))
 #save(probMaps, igtProjs, file = paste0("myExport_", period, ".rda"))
 ```
